@@ -8,7 +8,7 @@ import path from "node:path";
 import { clerkMiddleware } from "@clerk/express";
 
 import { connectDB } from "./lib/db.js";
-import job from "./backend/src/lib/cron.js";
+import job from "./lib/cron.js";
 
 const app = express();
 
