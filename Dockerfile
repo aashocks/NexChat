@@ -5,7 +5,7 @@ WORKDIR /app/frontend
 
 COPY frontend/package.json frontend/package-lock.json ./
 
-RUN npm install --no-audit --no-fund --legacy-peer-deps
+RUN npm install --no-audit --no-fund
 
 COPY frontend/ ./
 
