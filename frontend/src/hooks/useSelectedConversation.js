@@ -3,13 +3,17 @@ import { formatMessageTime } from "../lib/utils";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 
-// John Doe -> JD
+// John Doe -> JD (never crashes on a missing name)
 export function getInitials(name) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .map((namePart) => namePart[0])
-    .join("");
+  return (
+    (name || "")
+      .split(" ")
+      .filter(Boolean)
+      .map((namePart) => namePart[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?"
+  );
 }
 
 // mapUserToConversation is an adapter — it converts the raw backend shapes (a user document + an array of message documents) into the clean view-model that the chat UI components expect to render.
@@ -28,14 +32,17 @@ function mapUserToConversation({ user, messages, authUser, onlineUsers }) {
     videoUrl: message.video,
   }));
 
+  const displayName =
+    user.fullName || user.fullname || user.email?.split("@")[0] || "Unknown user";
+
   return {
     id: user._id,
     peer: {
-      name: user.fullName,
+      name: displayName,
       subtitle: user.email,
       isOnline: onlineUsers.includes(user._id),
       avatarUrl: user.profilePic,
-      initials: getInitials(user.fullName),
+      initials: getInitials(displayName),
     },
     messages: mappedMessages,
   };

@@ -9,26 +9,29 @@ import { MessageSquareIcon, UsersIcon } from "lucide-react";
 import { ConversationRow } from "./ConversationRow";
 
 function mapUserForList(user, onlineUsers) {
+  const displayName =
+    user.fullName || user.fullname || user.email?.split("@")[0] || "Unknown user";
+  const initials = getInitials(displayName);
+  const isOnline = onlineUsers.includes(user._id);
+
   return {
     conversationId: user._id,
     id: user._id,
-    name: user.fullName,
+    name: displayName,
     avatarUrl: user.profilePic,
-    initials: getInitials(user.fullName),
-    isOnline: onlineUsers.includes(user._id),
+    initials,
+    isOnline,
     peer: {
-      name: user.fullName,
+      name: displayName,
       avatarUrl: user.profilePic,
-      initials: getInitials(user.fullName),
-      isOnline: onlineUsers.includes(user._id),
+      initials,
+      isOnline,
     },
   };
 }
 
 function ChatSidebar() {
   const conversations = useChatStore((state) => state.conversations);
-
-  console.log(conversations);
   const users = useChatStore((state) => state.users);
 
   const searchQuery = useChatStore((state) => state.searchQuery);
