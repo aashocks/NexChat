@@ -44,10 +44,28 @@ if (fs.existsSync(publicDirPath)) {
     app.get("/{*any}", (req, res, next) => {
         res.sendFile(
             path.join(publicDirPath, "index.html"),
-            (err) => next(err)
+            (err) => {
+                if (err) next(err);
+            }
         );
     });
 }
+
+// Turn upload errors (file too large, wrong type, ...) into JSON the frontend can show.
+app.use((err, req, res, next) => {
+    if (res.headersSent) return next(err);
+
+    if (err?.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({ message: "File is too large (max 25MB)" });
+    }
+
+    if (err?.status && err.status < 500) {
+        return res.status(err.status).json({ message: err.message });
+    }
+
+    console.error("Unhandled error:", err);
+    res.status(500).json({ message: "Internal server error" });
+});
 
 const startServer = async () => {
     try {

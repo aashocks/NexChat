@@ -1,9 +1,20 @@
-import ImageKit, { toFile} from "@imagekit/nodejs";
+import ImageKit, { toFile } from "@imagekit/nodejs";
 
-const imagekit = new ImageKit({ privateKey: process.env.ImageKit_PRIVATE_KEY });
+// Environment variable names are case-sensitive on Linux (Render), so accept both spellings.
+function getPrivateKey() {
+    return (process.env.ImageKit_PRIVATE_KEY || process.env.IMAGEKIT_PRIVATE_KEY || "").trim();
+}
+
+let client;
+
+// Created on first use so a missing key can never break server start-up.
+function getClient() {
+    if (!client) client = new ImageKit({ privateKey: getPrivateKey() });
+    return client;
+}
 
 function hasImageKitConfig() {
-    return Boolean( process.env.ImageKit_PRIVATE_KEY );
+    return Boolean(getPrivateKey());
 }
 
 // this helper makes a safe, unique filename for imagekit uploads.
@@ -19,10 +30,10 @@ function createFileName( originalName = "upload") {
 async function uploadChatMedia(file) {
     const fileName = createFileName(file.originalname);
 
-        const result = await imagekit.files.upload({
-            file: await toFile(file.buffer, fileName,{ type: file.mimetype }),
-            fileName,
-            folder: "/chat",
+    const result = await getClient().files.upload({
+        file: await toFile(file.buffer, fileName, { type: file.mimetype }),
+        fileName,
+        folder: "/chat",
     });
 
     return result.url;
