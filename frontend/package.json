@@ -13,6 +13,7 @@
     "@clerk/react": "^6.18.5",
     "@heroui/react": "^3.2.7",
     "@heroui/styles": "^3.2.7",
+    "@react-aria/utils": "^3.34.1",
     "@tailwindcss/vite": "^4.3.4",
     "axios": "^1.21.0",
     "lucide-react": "^1.69.0",
