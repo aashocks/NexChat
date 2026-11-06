@@ -35,6 +35,7 @@ export const useChatStore = create(
           }));
         } catch (error) {
           console.log("Error in get Users", error.message);
+          toast.error(error.response?.data?.message || "Failed to load users");
         } finally {
           set({ isUsersLoading: false });
         }
@@ -66,12 +67,17 @@ export const useChatStore = create(
       },
 
       sendMessage: async (messageData) => {
-        const { selectedUser, messages } = get();
+        const { selectedUser } = get();
         if (!selectedUser) return false;
 
         try {
           const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-          set({ messages: [...messages, res.data], composerText: "" });
+          // Use the latest messages (a live message may have arrived during the upload) and
+          // only clear the text box when a text message was sent, not when sending a picture.
+          set((state) => ({
+            messages: [...state.messages, res.data],
+            composerText: messageData instanceof FormData ? state.composerText : "",
+          }));
           get().getConversations();
           return true;
         } catch (error) {
