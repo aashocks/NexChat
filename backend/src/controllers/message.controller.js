@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 import { hasImageKitConfig, uploadChatMedia } from "../lib/imagekit.js";
-import { io } from "../lib/socket.js";
+import { io, getReceiverSocketId } from "../lib/socket.js";
 
 export async function getUsersForSidebar(req, res) {
   try {
@@ -35,9 +35,11 @@ export async function getConversationsForSidebar(req, res) {
       { $sort: { lastMessageAt: -1 } },
       // 4. Look up each partner's user profile (comes back as an array).
       { $lookup: { from: "users", localField: "_id", foreignField: "_id", as: "user" } },
-      // 5. Pull that profile out of the array and make it the document.
+      // 5. Skip partners whose user record no longer exists.
+      { $match: { user: { $ne: [] } } },
+      // 6. Pull that profile out of the array and make it the document.
       { $replaceRoot: { newRoot: { $first: "$user" } } },
-      // 6. Hide the private clerkId field from the result.
+      // 7. Hide the private clerkId field from the result.
       { $project: { clerkId: 0 } },
     ]);
 
@@ -98,7 +100,7 @@ export async function sendMessage(req, res) {
 
     const receiverSocketId = getReceiverSocketId(receiverId);
 
-    if(receiverSocketId) {
+    if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
     }
 
