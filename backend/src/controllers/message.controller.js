@@ -78,6 +78,13 @@ export async function sendMessage(req, res) {
     let imageUrl;
     let videoUrl;
 
+    console.log(
+  "ImageKit env check:",
+  Object.keys(process.env).filter((k) => k.toLowerCase().includes("imagekit")),
+  "configured:",
+  hasImageKitConfig()
+);
+
     if (req.file) {
       if (!hasImageKitConfig()) {
         return res.status(500).json({ message: "Media upload is not configured" });
