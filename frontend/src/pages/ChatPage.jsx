@@ -1,8 +1,11 @@
-import React from 'react'
+import toast from "react-hot-toast"
 
 function ChatPage() {
   return (
-    <div>ChatPage</div>
+    <div>ChatPage
+
+      <button onClick={() => toast.error("you clicked")}>CLick Me</button>
+    </div>
   )
 }
 
